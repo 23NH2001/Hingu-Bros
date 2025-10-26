@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .details {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.3s ease-in-out;
+    }
+    .expanded .details {
+      max-height: 2500px; /* Increased max-height for multiple entries */
+      opacity: 1;
+    }
+    .category-fields.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="max-w-3xl mx-auto p-4">
+    <h1 class="text-3xl font-extrabold mb-6 text-gray-900 text-center">Hingu Bros</h1>
+
+    <div class="flex mb-6 shadow-sm">
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search by name or mobile..."
+        class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+      />
+      <button
+        id="addCustomerBtn"
+        class="bg-indigo-600 text-white px-5 py-3 rounded-r-lg hover:bg-indigo-700 font-medium flex-shrink-0"
+      >
+        Add Customer
+      </button>
+    </div>
+
+    <form id="customerForm" class="bg-white p-5 rounded-xl shadow-lg mb-6 hidden">
+      <h2 class="text-2xl font-bold text-gray-900 mb-5">Add / Edit Measurement</h2>
+      <input type="hidden" id="customerId" />
+
+      <div class="space-y-4 mb-4">
+        <input id="name" type="text" placeholder="Name" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" required />
+        <input id="mobile" type="tel" placeholder="Mobile" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" required />
+      </div>
+
+      <div class="mb-4">
+        <select id="category" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" required>
+          <option value="">-- Select a Category --</option>
+          <option value="પેન્ટ ચપટી વારુ">પેન્ટ ચપટી વારુ</option>
+          <option value="પેન્ટ ચપટી વગરનું">પેન્ટ ચપટી વગરનું</option>
+          <option value="શર્ટ">શર્ટ</option>
+          <option value="ઝભ્ભો">ઝભ્ભો</option>
+          <option value="કોટ">કોટ</option>
+          <option value="કોટી">કોટી</option>
+          <option value="જોધપુરી">જોધપુરી</option>
+          <option value="શેરવાની">શેરવાની</option>
+        </select>
+      </div>
+
+      <div id="dynamicFieldsContainer" class="space-y-4">
+        
+        <div id="garmentFields" class="category-fields hidden grid grid-cols-1 gap-4">
+          <input id="height" type="number" step=".01" placeholder="Height (inch)" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="width" type="number" step=".01" placeholder="Width (inch)" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+        </div>
+
+        <div id="shirtFields" class="category-fields hidden grid grid-cols-2 gap-4">
+          <input id="shirt_length" type="number" step=".01" placeholder="લંબાઇ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_chest" type="number" step=".01" placeholder="છાતી ફિટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_stomach" type="number" step=".01" placeholder="પેટ ફિટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_seat" type="number" step=".01" placeholder="સીટ ફિટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_shoulder" type="number" step=".01" placeholder="સોલ્ઙર" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_sleeve" type="number" step=".01" placeholder="બાય" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_loose" type="number" step=".01" placeholder="થેલો" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_collar" type="number" step=".01" placeholder="કૉલર" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="shirt_cuff" type="number" step=".01" placeholder="કફ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+        </div>
+        
+        <div id="pantFields" class="category-fields hidden grid grid-cols-2 gap-4">
+          <input id="pant_length" type="number" step=".01" placeholder="લંબાઇ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="pant_mori" type="number" step=".01" placeholder="મોરી" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="pant_knee" type="number" step=".01" placeholder="ગોઠણ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="pant_thigh" type="number" step=".01" placeholder="જાંઘ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="pant_joro" type="number" step=".01" placeholder="જોરો" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="pant_waist" type="number" step=".01" placeholder="કમર" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="pant_seat" type="number" step=".01" placeholder="સીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+        </div>
+
+        <div id="zabhbhoFields" class="category-fields hidden grid grid-cols-2 gap-4">
+          <input id="zabhbho_length" type="number" step=".01" placeholder="લંબાઈ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_chest" type="number" step=".01" placeholder="છાતી ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_waist" type="number" step=".01" placeholder="કમર ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_seat" type="number" step=".01" placeholder="સીટ ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_shoulder" type="number" step=".01" placeholder="સોલ્ડર" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_sleeve" type="number" step=".01" placeholder="બાય" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_loose" type="number" step=".01" placeholder="થેલો" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_collar" type="number" step=".01" placeholder="કોલર" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_stand" type="number" step=".01" placeholder="સ્ટેન્ડ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="zabhbho_cuff" type="number" step=".01" placeholder="કફ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+        </div>
+
+        <div id="coatFields" class="category-fields hidden grid grid-cols-2 gap-4">
+          <input id="coat_length" type="number" step=".01" placeholder="લંબાઈ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="coat_chest" type="number" step=".01" placeholder="છાતી ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="coat_waist" type="number" step=".01" placeholder="કમર ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="coat_seat" type="number" step=".01" placeholder="સીટ ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="coat_shoulder" type="number" step=".01" placeholder="સોલ્ડર" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="coat_sleeve" type="number" step=".01" placeholder="બાય" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="coat_mori" type="number" step=".01" placeholder="મોરી" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="coat_stand" type="number" step=".01" placeholder="સ્ટેન્ડ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+        </div>
+
+        <div id="kotiFields" class="category-fields hidden grid grid-cols-2 gap-4">
+          <input id="koti_length" type="number" step=".01" placeholder="લંબાઈ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="koti_chest" type="number" step=".01" placeholder="છાતી ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="koti_waist" type="number" step=".01" placeholder="કમર ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="koti_seat" type="number" step=".01" placeholder="સીટ ફીટ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="koti_shoulder" type="number" step=".01" placeholder="સોલ્ડર" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+          <input id="koti_stand" type="number" step=".01" placeholder="સ્ટેન્ડ" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4" />
+        </div>
+
+      </div>
+
+      <div class="mt-6 space-y-3">
+        <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          Save Measurement
+        </button>
+        <button type="button" id="cancelBtn" class="w-full bg-white text-gray-700 py-3 px-4 rounded-lg font-semibold border border-gray-300 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          Cancel
+        </button>
+      </div>
+    </form>
+    <a href="tel:+"></a>
+
+    <div id="customerList" class="space-y-4"></div>
+
+    <div id="pagination" class="flex justify-center items-center mt-6 space-x-2"></div>
+  </div>
+
+  <script>
+    const customerForm = document.getElementById('customerForm');
+    const customerListContainer = document.getElementById('customerList');
+    const paginationContainer = document.getElementById('pagination');
+    const addCustomerBtn = document.getElementById('addCustomerBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const searchInput = document.getElementById('searchInput');
+    const categorySelect = document.getElementById('category');
+    const dynamicFieldsContainer = document.getElementById('dynamicFieldsContainer');
+    const categoryFields = document.querySelectorAll('.category-fields');
+
+    let currentPage = 1;
+    const itemsPerPage = 4;
+    let filteredCustomers = null; 
+
+    // 📦 Local Storage Helpers
+    function getCustomers() {
+      return JSON.parse(localStorage.getItem('customers')) || [];
+    }
+
+    function saveCustomers(customers) {
+      localStorage.setItem('customers', JSON.stringify(customers));
+    }
+
+    // 🎨 Render Customers with Pagination (*** MODIFIED FOR NEW LAYOUT ***)
+    function renderCustomers(page = 1, measurementList = null, showAllDetails = false, expandedKey = null) {
+      customerListContainer.innerHTML = '';
+      
+      const allMeasurements = measurementList === null ? getCustomers() : measurementList;
+
+      const customersMap = {};
+      allMeasurements.forEach(m => {
+        const key = `${m.name}|${m.mobile}`; 
+        if (!customersMap[key]) {
+          customersMap[key] = {
+            name: m.name,
+            mobile: m.mobile,
+            measurements: []
+          };
+        }
+        customersMap[key].measurements.push({
+          id: m.id,
+          category: m.category,
+          details: m.details || {}
+        });
+      });
+      
+      const groupedCustomers = Object.values(customersMap).sort((a, b) => {
+        const lastIdA = Math.max(...a.measurements.map(m => m.id));
+        const lastIdB = Math.max(...b.measurements.map(m => m.id));
+        return lastIdB - lastIdA;
+      });
+
+
+      const totalItems = groupedCustomers.length;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (page > totalPages) currentPage = totalPages || 1;
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const customersToRender = groupedCustomers.slice(start, end);
+
+      if (customersToRender.length === 0) {
+        customerListContainer.innerHTML = `
+          <div class="text-center text-gray-500 p-6 bg-white rounded-lg shadow-lg">
+            No customers found.
+          </div>`;
+        paginationContainer.innerHTML = '';
+        return;
+      }
+
+      customersToRender.forEach(customer => {
+        const customerKey = `${customer.name}|${customer.mobile}`;
+        const isExpanded = showAllDetails || expandedKey === customerKey;
+        const expandedClass = isExpanded ? 'expanded' : '';
+
+        let measurementsHtml = '';
+        customer.measurements.forEach(m => {
+          const details = m.details;
+          const category = m.category;
+          let detailsHtml = '';
+
+          // (Details logic is unchanged)
+          if (category === 'શર્ટ') {
+            detailsHtml = `
+              <p class="w-1/2 mb-1"><strong>લંબાઇ:</strong> ${details.shirt_length || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>છાતી ફિટ:</strong> ${details.shirt_chest || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>પેટ ફિટ:</strong> ${details.shirt_stomach || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>સીટ ફિટ:</strong> ${details.shirt_seat || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>સોલ્ઙર:</strong> ${details.shirt_shoulder || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>બાય:</strong> ${details.shirt_sleeve || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>થેલો:</strong> ${details.shirt_loose || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>કૉલર:</strong> ${details.shirt_collar || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>કફ:</strong> ${details.shirt_cuff || '-'}</p>
+            `;
+          } else if (category === 'પેન્ટ ચપટી વારુ' || category === 'પેન્ટ ચપટી વગરનું') {
+            detailsHtml = `
+              <p class="w-1/2 mb-1"><strong>લંબાઇ:</strong> ${details.pant_length || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>મોરી:</strong> ${details.pant_mori || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>ગોઠણ:</strong> ${details.pant_knee || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>જાંઘ:</strong> ${details.pant_thigh || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>જોરો:</strong> ${details.pant_joro || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>કમર:</strong> ${details.pant_waist || '-'}</p>
+              <p class="w-1/2 mb-1"><strong>સીટ:</strong> ${details.pant_seat || '-'}</p>
+            `;
+          } else if (category === 'ઝભ્ભો') {
+              detailsHtml = `
+                <p class="w-1/2 mb-1"><strong>લંબાઈ:</strong> ${details.zabhbho_length || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>છાતી ફીટ:</strong> ${details.zabhbho_chest || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>કમર ફીટ:</strong> ${details.zabhbho_waist || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સીટ ફીટ:</strong> ${details.zabhbho_seat || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સોલ્ડર:</strong> ${details.zabhbho_shoulder || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>બાય:</strong> ${details.zabhbho_sleeve || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>થેલો:</strong> ${details.zabhbho_loose || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>કોલર:</strong> ${details.zabhbho_collar || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સ્ટેન્ડ:</strong> ${details.zabhbho_stand || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>કફ:</strong> ${details.zabhbho_cuff || '-'}</p>
+              `;
+          } else if (category === 'કોટ' || category === 'જોધપુરી' || category === 'શેરવાની') {
+              detailsHtml = `
+                <p class="w-1/2 mb-1"><strong>લંબાઈ:</strong> ${details.coat_length || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>છાતી ફીટ:</strong> ${details.coat_chest || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>કમર ફીટ:</strong> ${details.coat_waist || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સીટ ફીટ:</strong> ${details.coat_seat || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સોલ્ડર:</strong> ${details.coat_shoulder || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>બાય:</strong> ${details.coat_sleeve || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>મોરી:</strong> ${details.coat_mori || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સ્ટેન્ડ:</strong> ${details.coat_stand || '-'}</p>
+              `;
+          } else if (category === 'કોટી') {
+              detailsHtml = `
+                <p class="w-1/2 mb-1"><strong>લંબાઈ:</strong> ${details.koti_length || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>છાતી ફીટ:</strong> ${details.koti_chest || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>કમર ફીટ:</strong> ${details.koti_waist || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સીટ ફીટ:</strong> ${details.koti_seat || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સોલ્ડર:</strong> ${details.koti_shoulder || '-'}</p>
+                <p class="w-1/2 mb-1"><strong>સ્ટેન્ડ:</strong> ${details.koti_stand || '-'}</p>
+              `;
+          } else {
+            detailsHtml = `
+              <p class="flex-1"><strong>Height:</strong> ${details.height || '-'} inch</p>
+              <p class="flex-1"><strong>Width:</strong> ${details.width || '-'} inch</p>
+            `;
+          }
+
+          // *** NEW: Modern Measurement Entry ***
+          measurementsHtml += `
+            <div class="measurement-entry bg-white rounded-lg border border-gray-200 p-4 mb-3">
+              <h4 class="text-lg font-bold text-indigo-700 mb-2">${category}</h4>
+              <div class="flex flex-wrap text-sm text-gray-700">
+                ${detailsHtml}
+              </div>
+              <div class="mt-4 pt-3 border-t border-gray-200 text-right space-x-2">
+                <button class="edit-btn bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-200" data-id="${m.id}">Edit</button>
+                <button class="delete-btn text-red-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-50" data-id="${m.id}">Delete</button>
+              </div>
+            </div>
+          `;
+        });
+        
+        // *** NEW: Modern "Add New" Button ***
+        const addMeasurementButtonHtml = `
+          <div class="mt-4">
+            <button class="add-measurement-btn bg-indigo-50 border-2 border-dashed border-indigo-300 text-indigo-700 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-indigo-100 w-full flex items-center justify-center" 
+                    data-name="${customer.name}" data-mobile="${customer.mobile}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+              Add New Measurement
+            </button>
+          </div>
+        `;
+
+        // *** NEW: Modern Customer Card Assembly ***
+        const card = `
+          <div class="customer-card bg-white rounded-xl shadow-lg overflow-hidden ${expandedClass}" data-key="${customerKey}">
+            <div class="p-5 cursor-pointer"> 
+              <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-900">${customer.name}</h3>
+                <svg class="w-5 h-5 text-gray-400 transform transition-transform ${isExpanded ? 'rotate-180' : ''}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <p class="text-indigo-600 font-medium">Mobile: <a href="tel:+91${customer.mobile}" class="hover:underline">${customer.mobile}</a></p>
+              <p class="text-sm text-gray-500 mt-1">${customer.measurements.length} measurement(s)</p>
+            </div>
+            
+            <div class="details">
+              <div class="pt-0 p-5 bg-gray-50 border-t border-gray-200">
+                ${measurementsHtml}
+                ${addMeasurementButtonHtml}
+              </div>
+            </div>
+          </div>`;
+        customerListContainer.innerHTML += card;
+      });
+
+      renderPagination(totalPages);
+    }
+
+    // 🔢 Pagination Buttons (*** MODIFIED FOR NEW STYLE ***)
+    function renderPagination(totalPages) {
+      paginationContainer.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      const createButton = (text, pageNum, disabled = false) => {
+        const btn = document.createElement('button');
+        btn.textContent = text;
+        let baseStyle = 'px-4 py-2 rounded-lg text-sm font-medium ';
+        if (disabled) {
+          btn.className = baseStyle + 'bg-gray-200 text-gray-400 cursor-not-allowed';
+        } else {
+          btn.className = baseStyle + 'bg-white hover:bg-gray-100 border border-gray-300';
+          btn.addEventListener('click', () => {
+            currentPage = pageNum;
+            renderCustomers(currentPage, filteredCustomers);
+          });
+        }
+        return btn;
+      };
+
+      paginationContainer.appendChild(createButton('Prev', currentPage - 1, currentPage === 1));
+
+      for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = createButton(i, i, false);
+        if (i === currentPage) {
+          pageBtn.className = 'px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white border border-indigo-600';
+        }
+        paginationContainer.appendChild(pageBtn);
+      }
+
+      paginationContainer.appendChild(createButton('Next', currentPage + 1, currentPage === totalPages));
+    }
+
+    // 🧾 Handle Form Submit (Unchanged)
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('customerId').value;
+      const name = document.getElementById('name').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const category = categorySelect.value;
+      let details = {};
+
+      if (!name || !mobile) return alert('Name and Mobile are required!');
+      if (!category) return alert('Please select a category!');
+
+      if (category === 'શર્ટ') {
+        details.shirt_length = document.getElementById('shirt_length').value.trim();
+        details.shirt_chest = document.getElementById('shirt_chest').value.trim();
+        details.shirt_stomach = document.getElementById('shirt_stomach').value.trim();
+        details.shirt_seat = document.getElementById('shirt_seat').value.trim();
+        details.shirt_shoulder = document.getElementById('shirt_shoulder').value.trim();
+        details.shirt_sleeve = document.getElementById('shirt_sleeve').value.trim();
+        details.shirt_loose = document.getElementById('shirt_loose').value.trim();
+        details.shirt_collar = document.getElementById('shirt_collar').value.trim();
+        details.shirt_cuff = document.getElementById('shirt_cuff').value.trim();
+      } else if (category === 'પેન્ટ ચપટી વારુ' || category === 'પેન્ટ ચપટી વગરનું') {
+        details.pant_length = document.getElementById('pant_length').value.trim();
+        details.pant_mori = document.getElementById('pant_mori').value.trim();
+        details.pant_knee = document.getElementById('pant_knee').value.trim();
+        details.pant_thigh = document.getElementById('pant_thigh').value.trim();
+        details.pant_joro = document.getElementById('pant_joro').value.trim();
+        details.pant_waist = document.getElementById('pant_waist').value.trim();
+        details.pant_seat = document.getElementById('pant_seat').value.trim();
+      } else if (category === 'ઝભ્ભો') {
+        details.zabhbho_length = document.getElementById('zabhbho_length').value.trim();
+        details.zabhbho_chest = document.getElementById('zabhbho_chest').value.trim();
+        details.zabhbho_waist = document.getElementById('zabhbho_waist').value.trim();
+        details.zabhbho_seat = document.getElementById('zabhbho_seat').value.trim();
+        details.zabhbho_shoulder = document.getElementById('zabhbho_shoulder').value.trim();
+        details.zabhbho_sleeve = document.getElementById('zabhbho_sleeve').value.trim();
+        details.zabhbho_loose = document.getElementById('zabhbho_loose').value.trim();
+        details.zabhbho_collar = document.getElementById('zabhbho_collar').value.trim();
+        details.zabhbho_stand = document.getElementById('zabhbho_stand').value.trim();
+        details.zabhbho_cuff = document.getElementById('zabhbho_cuff').value.trim();
+      } else if (category === 'કોટ' || category === 'જોધપુરી' || category === 'શેરવાની') {
+        details.coat_length = document.getElementById('coat_length').value.trim();
+        details.coat_chest = document.getElementById('coat_chest').value.trim();
+        details.coat_waist = document.getElementById('coat_waist').value.trim();
+        details.coat_seat = document.getElementById('coat_seat').value.trim();
+        details.coat_shoulder = document.getElementById('coat_shoulder').value.trim();
+        details.coat_sleeve = document.getElementById('coat_sleeve').value.trim();
+        details.coat_mori = document.getElementById('coat_mori').value.trim();
+        details.coat_stand = document.getElementById('coat_stand').value.trim();
+      } else if (category === 'કોટી') {
+        details.koti_length = document.getElementById('koti_length').value.trim();
+        details.koti_chest = document.getElementById('koti_chest').value.trim();
+        details.koti_waist = document.getElementById('koti_waist').value.trim();
+        details.koti_seat = document.getElementById('koti_seat').value.trim();
+        details.koti_shoulder = document.getElementById('koti_shoulder').value.trim();
+        details.koti_stand = document.getElementById('koti_stand').value.trim();
+      } else {
+        details.height = document.getElementById('height').value.trim();
+        details.width = document.getElementById('width').value.trim();
+      }
+
+      let customers = getCustomers();
+      const customerData = { name, mobile, category, details }; 
+
+      if (id) {
+        customers = customers.map(c =>
+          c.id === parseInt(id) ? { ...c, ...customerData } : c
+        );
+      } else {
+        customers.push({
+          id: Date.now(),
+          ...customerData,
+        });
+      }
+
+      saveCustomers(customers);
+      filteredCustomers = null;
+      searchInput.value = '';
+      renderCustomers(currentPage);
+      resetForm(); 
+      customerForm.classList.add('hidden'); 
+    }
+
+    // 🗑️ Delete Measurement (Unchanged)
+    function deleteCustomer(id) {
+      if (!confirm('Are you sure you want to delete this measurement?')) return;
+      let customers = getCustomers();
+      customers = customers.filter(c => c.id !== parseInt(id));
+      saveCustomers(customers);
+      renderCustomers(currentPage, filteredCustomers);
+    }
+
+    // ✏️ Edit Measurement (Unchanged logic)
+    function startEditCustomer(id) {
+      const customers = getCustomers(); 
+      const c = customers.find(c => c.id === parseInt(id));
+      if (!c) return;
+
+      document.getElementById('customerId').value = c.id;
+      document.getElementById('name').value = c.name;
+      document.getElementById('mobile').value = c.mobile;
+      
+      document.getElementById('name').readOnly = true;
+      document.getElementById('mobile').readOnly = true;
+      
+      categorySelect.value = c.category;
+      updateDynamicFields();
+      
+      const details = c.details || {};
+      
+      if (c.category === 'શર્ટ') {
+        document.getElementById('shirt_length').value = details.shirt_length || '';
+        document.getElementById('shirt_chest').value = details.shirt_chest || '';
+        document.getElementById('shirt_stomach').value = details.shirt_stomach || '';
+        document.getElementById('shirt_seat').value = details.shirt_seat || '';
+        document.getElementById('shirt_shoulder').value = details.shirt_shoulder || '';
+        document.getElementById('shirt_sleeve').value = details.shirt_sleeve || '';
+        document.getElementById('shirt_loose').value = details.shirt_loose || '';
+        document.getElementById('shirt_collar').value = details.shirt_collar || '';
+        document.getElementById('shirt_cuff').value = details.shirt_cuff || '';
+      } else if (c.category === 'પેન્ટ ચપટી વારુ' || c.category === 'પેન્ટ ચપટી વગરનું') {
+        document.getElementById('pant_length').value = details.pant_length || '';
+        document.getElementById('pant_mori').value = details.pant_mori || '';
+        document.getElementById('pant_knee').value = details.pant_knee || '';
+        document.getElementById('pant_thigh').value = details.pant_thigh || '';
+        document.getElementById('pant_joro').value = details.pant_joro || '';
+        document.getElementById('pant_waist').value = details.pant_waist || '';
+        document.getElementById('pant_seat').value = details.pant_seat || '';
+      } else if (c.category === 'ઝભ્ભો') {
+        document.getElementById('zabhbho_length').value = details.zabhbho_length || '';
+        document.getElementById('zabhbho_chest').value = details.zabhbho_chest || '';
+        document.getElementById('zabhbho_waist').value = details.zabhbho_waist || '';
+        document.getElementById('zabhbho_seat').value = details.zabhbho_seat || '';
+        document.getElementById('zabhbho_shoulder').value = details.zabhbho_shoulder || '';
+        document.getElementById('zabhbho_sleeve').value = details.zabhbho_sleeve || '';
+        document.getElementById('zabhbho_loose').value = details.zabhbho_loose || '';
+        document.getElementById('zabhbho_collar').value = details.zabhbho_collar || '';
+        document.getElementById('zabhbho_stand').value = details.zabhbho_stand || '';
+        document.getElementById('zabhbho_cuff').value = details.zabhbho_cuff || '';
+      } else if (c.category === 'કોટ' || c.category === 'જોધપુરી' || c.category === 'શેરવાની') {
+        document.getElementById('coat_length').value = details.coat_length || '';
+        document.getElementById('coat_chest').value = details.coat_chest || '';
+        document.getElementById('coat_waist').value = details.coat_waist || '';
+        document.getElementById('coat_seat').value = details.coat_seat || '';
+        document.getElementById('coat_shoulder').value = details.coat_shoulder || '';
+        document.getElementById('coat_sleeve').value = details.coat_sleeve || '';
+        document.getElementById('coat_mori').value = details.coat_mori || '';
+        document.getElementById('coat_stand').value = details.coat_stand || '';
+      } else if (c.category === 'કોટી') {
+        document.getElementById('koti_length').value = details.koti_length || '';
+        document.getElementById('koti_chest').value = details.koti_chest || '';
+        document.getElementById('koti_waist').value = details.koti_waist || '';
+        document.getElementById('koti_seat').value = details.koti_seat || '';
+        document.getElementById('koti_shoulder').value = details.koti_shoulder || '';
+        document.getElementById('koti_stand').value = details.koti_stand || '';
+      } else {
+        document.getElementById('height').value = details.height || '';
+        document.getElementById('width').value = details.width || '';
+      }
+
+      customerForm.classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    // 🔍 Search (Unchanged)
+    function handleSearch() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const all = getCustomers();
+
+      if (searchTerm.trim() === '') {
+        filteredCustomers = null;
+        currentPage = 1;
+        renderCustomers(currentPage);
+        return;
+      }
+
+      filteredCustomers = all.filter(
+        c => c.name.toLowerCase().includes(searchTerm) || c.mobile.includes(searchTerm)
+      );
+      currentPage = 1;
+      renderCustomers(currentPage, filteredCustomers, true);
+    }
+
+    // 👆 Handle Card Clicks (*** MODIFIED FOR NEW CARD LAYOUT ***)
+    function handleCustomerListClick(event) {
+      const btn = event.target.closest('button');
+      const card = event.target.closest('.customer-card');
+      if (!card) return;
+
+      // Handle button clicks first
+      if (btn) {
+        event.stopPropagation();
+        const id = parseInt(btn.dataset.id);
+        
+        if (btn.classList.contains('delete-btn')) {
+          deleteCustomer(id);
+        } else if (btn.classList.contains('edit-btn')) {
+          startEditCustomer(id);
+        } else if (btn.classList.contains('add-measurement-btn')) {
+          const name = btn.dataset.name;
+          const mobile = btn.dataset.mobile;
+          
+          resetForm();
+          document.getElementById('name').value = name;
+          document.getElementById('mobile').value = mobile;
+          document.getElementById('name').readOnly = true;
+          document.getElementById('mobile').readOnly = true;
+          
+          customerForm.classList.remove('hidden');
+          window.scrollTo(0, 0);
+        }
+        return;
+      }
+      
+      // Handle card expansion (if the click wasn't on a button)
+      // Check if the click was inside the details area
+      if (event.target.closest('.details')) {
+        return; // Don't collapse card if clicking inside details
+      }
+
+      const key = card.dataset.key;
+      const expandedCard = document.querySelector('.customer-card.expanded');
+      const alreadyExpanded = expandedCard && expandedCard.dataset.key === key;
+
+      if (expandedCard) expandedCard.classList.remove('expanded');
+      if (!alreadyExpanded) card.classList.add('expanded');
+    }
+
+    // (Unchanged)
+    function updateDynamicFields() {
+      const selectedCategory = categorySelect.value;
+      const garmentFields = document.getElementById('garmentFields');
+      const shirtFields = document.getElementById('shirtFields');
+      const pantFields = document.getElementById('pantFields');
+      const zabhbhoFields = document.getElementById('zabhbhoFields');
+      const coatFields = document.getElementById('coatFields');
+      const kotiFields = document.getElementById('kotiFields');
+
+      categoryFields.forEach(field => field.classList.add('hidden'));
+
+      if (selectedCategory === 'શર્ટ') {
+        shirtFields.classList.remove('hidden');
+      } else if (selectedCategory === 'પેન્ટ ચપટી વારુ' || selectedCategory === 'પેન્ટ ચપટી વગરનું') {
+        pantFields.classList.remove('hidden');
+      } else if (selectedCategory === 'ઝભ્ભો') {
+        zabhbhoFields.classList.remove('hidden');
+      } else if (selectedCategory === 'કોટ' || selectedCategory === 'જોધપુરી' || selectedCategory === 'શેરવાની') {
+        coatFields.classList.remove('hidden');
+      } else if (selectedCategory === 'કોટી') {
+        kotiFields.classList.remove('hidden');
+      } else if (selectedCategory) { 
+        garmentFields.classList.remove('hidden');
+      }
+    }
+    
+    // (Unchanged)
+    function resetForm() {
+      customerForm.reset(); 
+      document.getElementById('customerId').value = '';
+      
+      document.getElementById('name').readOnly = false;
+      document.getElementById('mobile').readOnly = false;
+      
+      updateDynamicFields(); 
+    }
+
+    // 🧠 Event Listeners
+    addCustomerBtn.addEventListener('click', () => {
+      resetForm(); 
+      customerForm.classList.remove('hidden'); 
+      window.scrollTo(0, 0); 
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      resetForm();
+      customerForm.classList.add('hidden');
+    }); 
+
+    customerForm.addEventListener('submit', handleFormSubmit);
+    customerListContainer.addEventListener('click', handleCustomerListClick);
+    searchInput.addEventListener('input', handleSearch);
+    categorySelect.addEventListener('change', updateDynamicFields);
+
+    // 🚀 Initial Render
+    renderCustomers();
+  </script>
+</body>
+</html>
